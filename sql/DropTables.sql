@@ -1,0 +1,11 @@
+DROP TABLE responsavelAluno;
+DROP TABLE enderecoResponsavel;
+DROP TABLE enderecoAluno;
+DROP TABLE responsavel;
+DROP TABLE endereco;
+DROP TABLE deficiencia;
+DROP TABLE remedio;
+DROP TABLE fichaMedica;
+DROP TABLE aluno;
+DROP TABLE matricula;
+COMMIT;

@@ -1,0 +1,23 @@
+{
+  "name": "sistema-sophia",
+  "main": "server.js",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Backend do sistema sophia",
+  "keywords": [
+    "sophia"
+  ],
+  "author": "Michel de Castro Sunsin",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "oracledb": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12"
+  }
+}
