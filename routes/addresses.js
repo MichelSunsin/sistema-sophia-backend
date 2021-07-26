@@ -9,7 +9,8 @@ router.get('/:codigo(\\d+)', async (req, res) => {
 
   try {
     connection = await connectDB()
-    const sql = `SELECT 
+    const sql = `SELECT DISTINCT
+    codigo "codigo",
     cep "cep",
     estado "estado",
     cidade "cidade",
@@ -17,9 +18,9 @@ router.get('/:codigo(\\d+)', async (req, res) => {
     logradouro "logradouro",
     complemento "complemento"
     FROM endereco
-    WHERE codigo = :codigo`
+    WHERE endereco.codigo = :codigo`
 
-    const result = await connection.execute(sql, [req.params.connection], {
+    const result = await connection.execute(sql, [req.params.codigo], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     })
 
@@ -45,9 +46,12 @@ router.get('/list', async (req, res) => {
     cidade "cidade",
     numero "numero",
     logradouro "logradouro",
-    complemento "complemento"
+    complemento "complemento",
+    CASE WHEN enderecoAluno.codigoEndereco IS NULL THEN 0 ELSE 1 END "alunoMora",
+    CASE WHEN enderecoResponsavel.codigoEndereco IS NULL THEN 0 ELSE 1 END "responsavelMora"
     FROM endereco
-    WHERE codigo = :codigo`
+    LEFT JOIN enderecoAluno ON enderecoAluno.codigoEndereco = endereco.codigo
+    LEFT JOIN enderecoResponsavel ON enderecoResponsavel.codigoEndereco = endereco.codigo`
 
     const result = await connection.execute(sql, [], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
@@ -89,12 +93,7 @@ router.put('/:codigo(\\d+)', async (req, res) => {
       options
     )
 
-    res
-      .status(200)
-      .send({
-        msg: 'Endereço atualizado com sucesso',
-        data: result.outBinds[0][0],
-      })
+    res.status(200).send('Endereço atualizado com sucesso')
   } catch (err) {
     try {
       connection && connection.rollback()
@@ -120,24 +119,15 @@ router.post('/', async (req, res) => {
     connection = await connectDB()
 
     let sql = `INSERT INTO endereco (cep, estado, cidade, numero, logradouro, complemento)
-    VALUES (:0, :1, :2, :3, :4, :5)
-    RETURNING codigo INTO :codigo`
+    VALUES (:0, :1, :2, :3, :4, :5)`
 
-    const result = await connection.execute(
+    await connection.execute(
       sql,
-      [
-        cep,
-        estado,
-        cidade,
-        numero,
-        logradouro,
-        complemento,
-        { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
-      ],
+      [cep, estado, cidade, numero, logradouro, complemento],
       options
     )
 
-    res.status(200).json(result.outBinds[0][0])
+    res.status(200).send('Endereço cadastrado com sucesso')
   } catch (err) {
     try {
       connection && connection.rollback()

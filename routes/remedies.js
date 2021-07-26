@@ -11,7 +11,7 @@ router.get('/:matricula(\\d+)', async (req, res) => {
   try {
     connection = await connectDB()
     const sql = `SELECT descricao "descricao"
-    FROM deficiencia
+    FROM remedio
     WHERE matricula = :0`
 
     const result = await connection.execute(sql, [req.params.matricula], {
@@ -39,12 +39,12 @@ router.post('/', async (req, res) => {
   try {
     connection = await connectDB()
 
-    let sql = `INSERT INTO deficiencia (matricula, descricao)
+    let sql = `INSERT INTO remedio (matricula, descricao)
     VALUES (:0, :1)`
 
     await connection.execute(sql, [matricula, descricao], options)
 
-    res.status(200).send('Deficiência atribuída com sucesso')
+    res.status(200).send('Remédio atribuído com sucesso')
   } catch (err) {
     res.status(500).send(err.message)
   } finally {
@@ -66,12 +66,12 @@ router.delete('/', async (req, res) => {
   try {
     connection = await connectDB()
 
-    let sql = `DELETE FROM deficiencia
+    let sql = `DELETE FROM remedio
     WHERE matricula = :0 
     AND descricao = :1`
 
     await connection.execute(sql, [matricula, descricao], options)
-    res.status(200).send('Deficiência removida com sucesso')
+    res.status(200).send('Remédio removido com sucesso')
   } catch (err) {
     res.status(500).send(err.message)
   } finally {

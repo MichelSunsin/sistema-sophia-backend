@@ -13,7 +13,10 @@ app.get('/', async (req, res) => {
 // Definição de rotas
 app.use('/api/students', require('./routes/students'))
 app.use('/api/responsible', require('./routes/responsible'))
+app.use('/api/responsibleStudents', require('./routes/responsibleStudents'))
 app.use('/api/addresses', require('./routes/addresses'))
+app.use('/api/studentsAddresses', require('./routes/studentsAddresses'))
+app.use('/api/responsibleAddresses', require('./routes/responsibleAddresses'))
 app.use('/api/deficiencies', require('./routes/deficiencies'))
 app.use('/api/remedies', require('./routes/remedies'))
 

@@ -44,8 +44,12 @@ router.get('/list', async (req, res) => {
     TO_CHAR(dataNasc, 'yyyy-mm-dd') "dataNasc",
     telefone "telefone",
     celular "celular",
-    descricaoCorporal "descricaoCorporal"
-    FROM responsavel`
+    descricaoCorporal "descricaoCorporal",
+    CASE WHEN responsavelAluno.codigoResponsavel IS NULL THEN 0 ELSE 1 END "responsavel",
+    CASE WHEN responsavelAluno.responsavelFinanceiro IS NULL THEN 0 ELSE responsavelAluno.responsavelFinanceiro END "responsavelFinanceiro"
+    FROM responsavel
+    LEFT JOIN responsavelAluno ON responsavel.codigo = responsavelAluno.codigoResponsavel
+    ORDER BY responsavelAluno.codigoResponsavel`
 
     const result = await connection.execute(sql, [], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
@@ -65,6 +69,7 @@ router.put('/:codigo(\\d+)', async (req, res) => {
   let connection
   const options = {
     outFormat: oracledb.OUT_FORMAT_OBJECT,
+    autoCommit: true,
   }
   const { nome, cpf, dataNasc, telefone, celular, descricaoCorporal } = req.body
 
@@ -94,20 +99,11 @@ router.put('/:codigo(\\d+)', async (req, res) => {
       options
     )
 
-    await connection.execute(
-      sql,
-      [nome, certNasc, dataNasc, req.params.matricula],
-      options
-    )
-
-    connection.commit()
-
-    res.status(200).send('Responsável atualizado com sucesso')
+    res.status(200).json({
+      msg: 'Responsável atualizado com sucesso',
+      data: req.params.codigo,
+    })
   } catch (err) {
-    try {
-      connection && connection.rollback()
-    } catch (error) {}
-
     res.status(500).send(err.message)
   } finally {
     try {
@@ -145,11 +141,11 @@ router.post('/', async (req, res) => {
       options
     )
 
-    await connection.execute(
-      sql,
-      [result.outBinds[0][0], nome, certNasc, dataNasc],
-      options
-    )
+    // await connection.execute(
+    //   sql,
+    //   [result.outBinds[0][0], nome, certNasc, dataNasc],
+    //   options
+    // )
 
     connection.commit()
 
@@ -160,12 +156,12 @@ router.post('/', async (req, res) => {
   } catch (err) {
     try {
       connection && connection.rollback()
-    } catch (error) {}
+    } catch (err) {}
     res.status(500).send(err.message)
   } finally {
     try {
       connection && connection.close()
-    } catch (error) {}
+    } catch (err) {}
   }
 })
 
